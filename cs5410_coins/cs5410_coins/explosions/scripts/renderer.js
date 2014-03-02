@@ -124,15 +124,17 @@ MYGAME.particlesAnnimation = function (elapsedTime) {
 
     MYGAME.explosions.forEach(function (element, index, array) {
 
-        element.particles.fire.update(elapsedTime);
-        element.particles.smoke.update(elapsedTime);
+        if (element.active) {
+            element.particles.fire.update(elapsedTime);
+            element.particles.smoke.update(elapsedTime);
 
-        element.particles.fire.render();
-        element.particles.smoke.render();
+            element.particles.fire.render();
+            element.particles.smoke.render();
 
-        element.particles.fire.create();
-        element.particles.fire.create();
-        element.particles.smoke.create();
+            element.particles.fire.create();
+            element.particles.fire.create();
+            element.particles.smoke.create();
+        }
 
     });
 
@@ -155,7 +157,34 @@ MYGAME.particlesAnnimation = function (elapsedTime) {
          //MYGAME.particles.particlesFire.create();
          //MYGAME.particles.particlesSmoke.create();
 
-         MYGAME.explosionDuration += elapsedTime;
+         //MYGAME.explosionDuration += elapsedTime;
+};
+
+
+
+
+MYGAME.update = function (elapsedTime) {
+
+
+    // Update all active explosions
+    for (var i = 0; i < MYGAME.explosions.length; i++) {
+
+        if (MYGAME.explosions[i].active) {
+
+            MYGAME.explosions[i].duration += elapsedTime;
+
+            if (MYGAME.explosions[i].duration > MYGAME.explosions[i].maxDuration) {
+
+                MYGAME.explosions[i].active = false;
+            }
+        }
+    }
+
+
+
+    // other updates.
+    // TODO:
+    // Here is where clicks are verified and explosions setup ... eventually.
 };
 
 
@@ -174,6 +203,8 @@ MYGAME.particlesAnnimation = function (elapsedTime) {
      // Compute elapsed time in seconds
      var elapsedTime = (time - MYGAME.lastTimeStamp) / 1000;
      MYGAME.lastTimeStamp = time;
+
+     MYGAME.update(elapsedTime);
 
      MYGAME.particlesAnnimation(elapsedTime);
 
