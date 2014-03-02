@@ -13,7 +13,19 @@
 MYGAME = {};
 MYGAME.graphics = {};
 MYGAME.images = {};
-MYGAME.particles = {};
+//MYGAME.particles = {};      // deprecated
+MYGAME.explosions = [];
+
+MYGAME.explosion = function (_maxDuration, _particles) {
+
+    var that = {};
+    that.maxDuration = _maxDuration || 2;
+    that.duration = 0;
+    that.active = false;
+    that.particles = _particles;
+
+    return that;
+};
 
 
 // CHANGE: set particle animation to last just a few seconds
@@ -48,8 +60,8 @@ MYGAME.context = {};
              x: e.x,
              y: e.y
          };
+         
          MYGAME.setParticles(location);
-         MYGAME.explosionDuration = 0;
      };
 
 
@@ -108,29 +120,43 @@ MYGAME.context = {};
 
 
 // 7) Encapsulate particles - away from game loop.
- MYGAME.particlesAnnimation = function (elapsedTime) {
+MYGAME.particlesAnnimation = function (elapsedTime) {
 
-     if (MYGAME.explosionDuration < MYGAME.explosionLength) {
-         //
-         // Update the current set of particles
-         MYGAME.particles.particlesFire.update(elapsedTime);
-         MYGAME.particles.particlesSmoke.update(elapsedTime);
+    MYGAME.explosions.forEach(function (element, index, array) {
 
-         //
-         // Render the current set of particles
-         MYGAME.particles.particlesFire.render();
-         MYGAME.particles.particlesSmoke.render();
+        element.particles.fire.update(elapsedTime);
+        element.particles.smoke.update(elapsedTime);
 
-         //
-         // Generate some new particles
-         MYGAME.particles.particlesFire.create();
-         MYGAME.particles.particlesFire.create();
-         MYGAME.particles.particlesSmoke.create();
+        element.particles.fire.render();
+        element.particles.smoke.render();
+
+        element.particles.fire.create();
+        element.particles.fire.create();
+        element.particles.smoke.create();
+
+    });
+
+         
+         
+
+
+         //// Update the current set of particles
+         //MYGAME.particles.particlesFire.update(elapsedTime);
+         //MYGAME.particles.particlesSmoke.update(elapsedTime);
+
+         ////
+         //// Render the current set of particles
+         //MYGAME.particles.particlesFire.render();
+         //MYGAME.particles.particlesSmoke.render();
+
+         ////
+         //// Generate some new particles
+         //MYGAME.particles.particlesFire.create();
+         //MYGAME.particles.particlesFire.create();
+         //MYGAME.particles.particlesSmoke.create();
 
          MYGAME.explosionDuration += elapsedTime;
-
-     }
- };
+};
 
 
 
@@ -157,7 +183,7 @@ MYGAME.context = {};
 
 
 // 5) Encapsulate particle system creation
- MYGAME.setParticles = function (location) {
+MYGAME.setParticles = function (location) {
 
      if (location === undefined) {
 
@@ -168,7 +194,7 @@ MYGAME.context = {};
      }
 
     
-    MYGAME.particles.particlesFire = particleSystem({
+    var fire = particleSystem({
        image: MYGAME.images.pic_fire,
          center: { x: location.x, y: location.y },
          speed: { mean: 25, stdev: 10 },
@@ -178,7 +204,7 @@ MYGAME.context = {};
     );
 
     //MYGAME.particles.particlesSmoke.render();
-    MYGAME.particles.particlesSmoke = particleSystem({
+    var smoke = particleSystem({
         image: MYGAME.images.pic_smoke,
         center: { x: location.x, y: location.y },
             speed: { mean: 25, stdev: 10 },
@@ -187,7 +213,30 @@ MYGAME.context = {};
      	MYGAME.graphics
     );
 
- };
+
+    var prt = {fire: fire, smoke: smoke};
+    var ex = MYGAME.explosion(MYGAME.explosionDuration, prt);
+    ex.active = true;
+
+    // find innactive explosion in explosions (or create one) and add ex to it.
+    var added = false;
+    for (var i = 0; i < MYGAME.explosions.length; i++) {
+
+        if (!MYGAME.explosions[i].active) {
+
+            MYGAME.explosions[i] = ex;
+            added = true;
+            break;
+        }
+    }
+
+    if (!added){
+    
+        MYGAME.explosions.push(ex);
+    }
+  
+
+};
 
 
 
@@ -247,7 +296,7 @@ MYGAME.initialize = function initialize() {
 
     
     // 4 ....
-    MYGAME.setParticles();
+   // MYGAME.setParticles();
 
 
     //
