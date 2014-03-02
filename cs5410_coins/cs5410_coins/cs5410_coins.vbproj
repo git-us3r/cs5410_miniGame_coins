@@ -81,6 +81,11 @@
     <Import Include="System.Web.UI.HtmlControls" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="blocks\blocks.css" />
+    <Content Include="blocks\blocks.html" />
+    <Content Include="blocks\blocks.js" />
+    <Content Include="blocks\blocksEncapsulated.js" />
+    <Content Include="blocks\random.js" />
     <Content Include="explosions\scripts\index.html" />
     <Content Include="explosions\scripts\particle-system.js" />
     <Content Include="explosions\scripts\particlesTest.css" />
